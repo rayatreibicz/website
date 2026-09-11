@@ -28,7 +28,22 @@ if(graph&&svg){
   const presets={
     wide:{raya:[.50,.48],coaching:[.19,.25],ai:[.76,.24],adoptee:[.20,.72],writing:[.76,.72],contact:[.88,.47],judgment:[.61,.18],systems:[.37,.38],humanity:[.66,.40],identity:[.35,.62],responsibility:[.60,.62],compassion:[.43,.79],curiosity:[.49,.27]},
     mid:{raya:[.50,.47],coaching:[.18,.24],ai:[.76,.23],adoptee:[.19,.71],writing:[.76,.71],contact:[.88,.47],judgment:[.61,.16],systems:[.36,.38],humanity:[.66,.40],identity:[.35,.61],responsibility:[.60,.61],compassion:[.43,.81],curiosity:[.49,.28]},
-    narrow:{raya:[.50,.16],coaching:[.22,.35],ai:[.72,.35],adoptee:[.22,.62],writing:[.72,.62],contact:[.72,.84],judgment:[.50,.30],systems:[.36,.48],humanity:[.64,.47],identity:[.34,.73],responsibility:[.64,.73],compassion:[.50,.82],curiosity:[.50,.40]}
+    narrow:{
+  raya:[.50,.22],
+  coaching:[.24,.42],
+  ai:[.72,.42],
+  adoptee:[.24,.64],
+  writing:[.72,.64],
+  contact:[.50,.82],
+
+  judgment:[.50,.30],
+  systems:[.36,.48],
+  humanity:[.64,.47],
+  identity:[.34,.73],
+  responsibility:[.64,.73],
+  compassion:[.50,.82],
+  curiosity:[.50,.40]
+}
   };
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer=window.matchMedia('(hover:hover) and (pointer:fine)');
