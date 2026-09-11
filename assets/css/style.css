@@ -34,7 +34,7 @@ img{max-width:100%;display:block}
 .gnode{position:absolute;transform:translate(-50%,-50%);border:0;background:none;padding:0;outline:none;text-align:left;transition:opacity .2s ease,color .2s ease,filter .2s ease;will-change:left,top}
 .gnode.dim{opacity:.15}
 .gnode .node-core{position:absolute;border-radius:50%;transition:transform .2s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease}
-.gnode .label,.gnode .meta{position:relative;z-index:3;width:max-content;background:rgba(244,239,228,.96);box-shadow:0 0 0 2px rgba(244,239,228,.96);transform-origin:left center;transition:transform .24s cubic-bezier(.2,.7,.2,1),color .2s ease}
+.gnode .label,.gnode .meta{position:relative;z-index:3;width:max-content;background:transparent;box-shadow:none;text-shadow:-1px -1px 0 var(--paper),1px -1px 0 var(--paper),-1px 1px 0 var(--paper),1px 1px 0 var(--paper),0 1px 0 var(--paper),1px 0 0 var(--paper),0 -1px 0 var(--paper),-1px 0 0 var(--paper);transform-origin:left center;transition:transform .24s cubic-bezier(.2,.7,.2,1),color .2s ease}
 .gnode .label{display:block;white-space:nowrap}
 .gnode .meta{display:block;margin-top:.22rem;color:var(--brass);text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;font-weight:700}
 .gnode.primary,.gnode.secondary,.gnode.anchor{cursor:pointer}
@@ -130,20 +130,12 @@ img{max-width:100%;display:block}
   .method-grid{grid-template-columns:1fr;gap:2.5rem}
   .method-grid.coaching-method>div{grid-template-columns:1fr;gap:.5rem}.method-grid.coaching-method>div>p:last-child{grid-column:1;grid-row:auto}
 }
-@media(max-width:620px){
-  .graph-shell{min-height:760px;height:max(100svh,760px)}
-  .graph-signature{display:none}
-  .gnode.primary .label{font-size:1.2rem}.gnode.secondary .label{font-size:1.03rem}.gnode.secondary[data-node="coaching"] .label{font-size:1.03rem}.gnode.secondary[data-node="contact"] .label{font-size:1.08rem}.gnode.idea .label{font-size:.59rem}.gnode.anchor .label{font-size:2.45rem}.gnode .meta{font-size:.49rem}
-  .gnode .label,.gnode .meta{box-shadow:0 0 0 5px rgba(244,239,228,.96)}
-  .page-shell{padding:0 1.25rem}
-  .page-map-link{left:.85rem;top:.85rem}
-  .sky-hero{padding-top:7rem;padding-bottom:4.7rem}
-  .sky-hero h1{font-size:clamp(2.8rem,13vw,4.35rem)}
-  .field-section{padding:5.2rem 0}.field-section+.field-section{padding-top:3.6rem}
-  .field-content h2{font-size:clamp(2.05rem,10vw,3.25rem)}
-  .contact-email{font-size:clamp(2rem,9vw,3.5rem)}
-}
+
+@media(max-width:620px){.graph-shell{min-height:auto;height:auto;padding:7rem 1.5rem 5rem}.graph-lines{display:none}.gnode.idea{display:none}#graph{position:relative;width:100%;height:auto;opacity:1;display:flex;flex-direction:column;align-items:flex-start;gap:2.6rem}.gnode{position:relative!important;left:auto!important;top:auto!important;transform:none!important;width:100%}.gnode .node-core,.gnode.anchor:before,.gnode.anchor:after{display:none}.gnode[data-node="raya"]{order:1}.gnode[data-node="ai"]{order:2}.gnode[data-node="coaching"]{order:3}.gnode[data-node="writing"]{order:4}.gnode[data-node="adoptee"]{order:5}.gnode[data-node="contact"]{order:6}.gnode.anchor{margin-bottom:1.5rem}.gnode.anchor .label{font-size:3rem;line-height:1}.gnode.primary .label,.gnode.secondary .label,.gnode.secondary[data-node="contact"] .label{font-size:1.55rem;line-height:1.15}.gnode .meta{font-size:.78rem;line-height:1.5;letter-spacing:.13em;margin-top:.42rem}.gnode.anchor .meta{font-size:.82rem;line-height:1.55;max-width:360px;margin-top:.9rem;text-align:left}.gnode .label,.gnode .meta{background:transparent;box-shadow:none}.graph-signature{display:block;position:relative!important;left:0!important;right:auto!important;bottom:auto!important;top:auto!important;transform:none!important;width:100%!important;max-width:none;margin:4.5rem 0 0!important;padding:0;text-align:center;box-sizing:border-box}.page-shell{padding:0 1.25rem}.page-map-link{left:.85rem;top:.85rem}.sky-hero{padding-top:7rem;padding-bottom:4.7rem}.sky-hero h1{font-size:clamp(2.8rem,13vw,4.35rem)}.field-section{padding:5.2rem 0}.field-section+.field-section{padding-top:3.6rem}.field-content h2{font-size:clamp(2.05rem,10vw,3.25rem)}.contact-email{font-size:clamp(2rem,9vw,3.5rem)}}
+
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.gnode{transition:none}}
+
+@media(max-width:700px){h1{line-height:1.18}}
 
 #graph {
     opacity: 0;
