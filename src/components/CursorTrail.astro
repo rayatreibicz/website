@@ -1,0 +1,36 @@
+<div class="cursor-trail-layer" aria-hidden="true"></div>
+<script>
+  const layer = document.querySelector('.cursor-trail-layer');
+  const fine = window.matchMedia('(hover:hover) and (pointer:fine)');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (layer && fine.matches && !reduced.matches) {
+    let lastX = -999, lastY = -999, lastTime = 0;
+    const spawn = (x:number, y:number, speed:number) => {
+      const dot = document.createElement('i');
+      // Give each trace a small one-time scatter so the wake feels organic, not ruler-straight.
+      // The point does not keep wiggling after it appears.
+      const jitter = 4.5;
+      const jx = (Math.random() * 2 - 1) * jitter;
+      const jy = (Math.random() * 2 - 1) * jitter;
+      // Keep the existing subtle speed response, then add independent size variation.
+      const baseSize = Math.max(2.2, Math.min(4.4, 2.4 + speed * .015));
+      const size = Math.max(1.8, Math.min(5.2, baseSize * (.72 + Math.random() * .58)));
+      dot.style.cssText = `left:${x + jx}px;top:${y + jy}px;width:${size}px;height:${size}px`;
+      layer.appendChild(dot);
+      requestAnimationFrame(() => dot.classList.add('fade'));
+      setTimeout(() => dot.remove(), 950);
+    };
+    window.addEventListener('pointermove', (e) => {
+      const now = performance.now();
+      const dx=e.clientX-lastX, dy=e.clientY-lastY, dist=Math.hypot(dx,dy);
+      const dt=Math.max(16,now-lastTime), speed=dist/dt*1000;
+      if(dist >= 18 || now-lastTime > 90){
+        if(lastX > -900){
+          const steps=Math.min(3,Math.max(1,Math.floor(dist/34)));
+          for(let i=1;i<=steps;i++) spawn(lastX+dx*(i/(steps+1)),lastY+dy*(i/(steps+1)),speed);
+        }
+        lastX=e.clientX; lastY=e.clientY; lastTime=now;
+      }
+    }, {passive:true});
+  }
+</script>

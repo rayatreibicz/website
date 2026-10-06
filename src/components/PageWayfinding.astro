@@ -1,0 +1,18 @@
+---
+interface Link { href:string; label:string; }
+interface Props { links?: Link[]; position?: 'top'|'bottom'; }
+const { links = [
+  {href:'/about/',label:'About'},
+  {href:'/work/',label:'Work'},
+  {href:'/projects/',label:'Projects'},
+  {href:'/contact/',label:'Contact'}
+], position='bottom' } = Astro.props;
+const current = Astro.url.pathname.replace(/\/index\.html$/,'/');
+const visibleLinks = links.filter(link => link.href !== current);
+---
+<nav class:list={['page-wayfinding','reveal',`wayfinding-${position}`]} aria-label={position === 'top' ? 'Nearby pages' : 'Continue exploring'}>
+  <span class="wayfinding-label">Nearby in the constellation</span>
+  <div class="wayfinding-links">
+    {visibleLinks.map(link => <a href={link.href}>{link.label}</a>)}
+  </div>
+</nav>

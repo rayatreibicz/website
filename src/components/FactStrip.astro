@@ -1,0 +1,28 @@
+---
+interface Fact {
+  label: string;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  items: Fact[];
+}
+
+const { items } = Astro.props;
+---
+
+<div
+  class="fact-strip reveal"
+  style={`--fact-count:${Math.min(items.length, 4)}`}>
+  {items.map((item) => (
+    <div class="fact-strip-item">
+
+      <p class="fact-strip-label">{item.label}</p>
+
+      <h3>{item.title}</h3>
+
+      <p class="fact-strip-text">{item.text}</p>
+    </div>
+  ))}
+</div>

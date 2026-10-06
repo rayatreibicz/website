@@ -1,0 +1,16 @@
+---
+import PageWayfinding from '../../components/PageWayfinding.astro';
+import InteriorLayout from '../../layouts/InteriorLayout.astro';
+---
+<InteriorLayout title="Projects | Raya Maia" description="Projects, experiments, and things Raya Maia is building or investigating." pageClass="page-projects" canonicalPath="/projects/">
+  <main><div class="page-shell">
+    <PageWayfinding position="top" />
+    <section class="sky-hero compact-landing"><div class="sky-hero-copy reveal"><p class="kicker">In progress</p><h1>Projects</h1>
+      <p class="lede">What I’m building, investigating, and exploring.</p></div></section>
+    <section class="landing-index reveal" aria-label="Project pages">
+      <a href="/projects/local-agent/"><span>Homegrown Intelligence</span><small>Local AI Agent</small></a>
+      <a href="/projects/ai-society/"><span>AI & Society</span><small>Human judgment, oversight & AI</small></a>
+    </section>
+    <PageWayfinding position="bottom" />
+  </div></main>
+</InteriorLayout>

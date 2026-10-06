@@ -1,0 +1,5 @@
+---
+interface Props { label?: string; }
+const { label='Artifact' } = Astro.props;
+---
+<figure class="artifact reveal"><figcaption>{label}</figcaption><div class="artifact-body"><slot /></div></figure>

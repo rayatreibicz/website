@@ -1,0 +1,27 @@
+---
+interface Entry {date: string; text: string;}
+
+interface Props {entries: Entry[];}
+
+const { entries } = Astro.props;
+---
+
+<section class="project-log-section">
+  <p class="kicker">Project Log</p>
+
+  <div class="project-log">
+    {entries.map((entry) => (
+      <article class="project-log-entry">
+        <time datetime={entry.date}>
+          {new Date(`${entry.date}T00:00:00`).toLocaleDateString("en-CA", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </time>
+
+        <p>{entry.text}</p>
+      </article>
+    ))}
+  </div>
+</section>

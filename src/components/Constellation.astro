@@ -1,0 +1,521 @@
+---
+import { constellationNodes, constellationLinks } from '../data/constellation';
+---
+
+<main class="graph-shell" aria-label="Raya Maia's constellation">
+  <div class="graph-grid" aria-hidden="true"></div>
+
+  <svg
+    class="graph-lines"
+    id="graph-lines"
+    aria-hidden="true"
+    style="opacity:0"
+  ></svg>
+
+  <div class="graph" id="graph">
+    {constellationNodes.map(node => {
+      const classes = [
+        'gnode',
+        node.kind,
+        node.secondary ? 'secondary' : ''
+      ].filter(Boolean).join(' ');
+
+      const style = `--base-x:${node.position.x};--base-y:${node.position.y};`;
+
+      if (node.kind === 'star') return (
+        <span
+          class={`gnode celestial-star glow-${node.glow ?? 'soft'} size-${node.size ?? 'medium'}`}
+          data-node={node.id}
+          style={style}
+        >
+          <span class="node-core"></span>
+        </span>
+      );
+
+      if (node.kind === 'quote') return (
+        <span
+          class="gnode quote-node"
+          data-node={node.id}
+          style={style}
+        >
+          <span class="node-core"></span>
+          <span class="label">{node.label}</span>
+        </span>
+      );
+
+      if (node.kind === 'anchor') return (
+        <a
+          class={classes}
+          data-node={node.id}
+          href={node.href}
+          style={style}
+        >
+          <span class="node-core"></span>
+
+          <img
+            class="anchor-portrait"
+            src="/images/raya.jpg"
+            alt=""
+          />
+
+          <span class="label">{node.label}</span>
+
+          {node.meta && (
+            <span class="meta">{node.meta}</span>
+          )}
+        </a>
+      );
+
+      if (node.href) return (
+        <a
+          class={classes}
+          data-node={node.id}
+          href={node.href}
+          style={style}
+        >
+          <span class="node-core"></span>
+
+          <span class="node-copy">
+            <span class="label">{node.label}</span>
+            {node.meta && (
+              <span class="meta">{node.meta}</span>
+            )}
+          </span>
+        </a>
+      );
+
+      return (
+        <span
+          class={classes}
+          data-node={node.id}
+          style={style}
+        >
+          <span class="node-core"></span>
+          <span class="label">{node.label}</span>
+        </span>
+      );
+    })}
+  </div>
+</main>
+
+<script define:vars={{ constellationLinks }}>
+  const graph = document.querySelector('#graph');
+  const svg = document.querySelector('#graph-lines');
+
+  if (graph && svg) {
+    const nodes = [...graph.querySelectorAll('[data-node]')];
+
+    const byId = Object.fromEntries(
+      nodes.map(n => [n.dataset.node, n])
+    );
+
+    const links = constellationLinks.map(
+      l => [l.from, l.to, l.kind]
+    );
+
+    const ns = 'http://www.w3.org/2000/svg';
+
+    const lineEls = links.map(([a, b, type]) => {
+      const l = document.createElementNS(ns, 'path');
+
+      l.dataset.a = a;
+      l.dataset.b = b;
+      l.classList.add(`link-${type}`);
+
+      svg.appendChild(l);
+
+      return l;
+    });
+
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const finePointer = window.matchMedia(
+      '(hover:hover) and (pointer:fine)'
+    );
+
+    const states = {};
+
+    let pointer = {
+      x: 0,
+      y: 0,
+      inside: false
+    };
+
+    let last = performance.now();
+
+    const compactLayout = () =>
+      matchMedia(
+        '(max-width: 900px), (max-width: 1200px) and (max-aspect-ratio: 1/1)'
+      ).matches;
+
+    const motionEnabled = () =>
+      !reduced &&
+      finePointer.matches &&
+      !compactLayout();
+
+    function coreCenter(node, base) {
+      // Anchor nodes intentionally hide their generic core;
+      // their portrait is the visible constellation point.
+      const core = node.querySelector('.node-core');
+      const portrait = node.querySelector('.anchor-portrait');
+
+      const target =
+        portrait ||
+        (
+          core &&
+          getComputedStyle(core).display !== 'none'
+            ? core
+            : node
+        );
+
+      const r = target.getBoundingClientRect();
+
+      return [
+        r.left + r.width / 2 - base.left,
+        r.top + r.height / 2 - base.top
+      ];
+    }
+
+    function drawLines() {
+      const base = graph.getBoundingClientRect();
+
+      lineEls.forEach(line => {
+        const a = byId[line.dataset.a];
+        const b = byId[line.dataset.b];
+
+        if (!a || !b) return;
+
+        const [x1, y1] = coreCenter(a, base);
+        const [x2, y2] = coreCenter(b, base);
+
+        line.setAttribute(
+          'd',
+          `M ${x1} ${y1} L ${x2} ${y2}`
+        );
+      });
+    }
+
+    function rawTarget(node) {
+      const rect = graph.getBoundingClientRect();
+
+      return {
+        x:
+          parseFloat(
+            node.style.getPropertyValue('--base-x')
+          ) * rect.width,
+
+        y:
+          parseFloat(
+            node.style.getPropertyValue('--base-y')
+          ) * rect.height
+      };
+    }
+
+    // Gentle collision pass. Positions remain art-directed,
+    // but newly added nodes get nudged rather than sitting
+    // on top of existing labels.
+    function resolvedTargets() {
+      const targets = Object.fromEntries(
+        nodes.map(n => [
+          n.dataset.node,
+          rawTarget(n)
+        ])
+      );
+
+      if (compactLayout()) return targets;
+
+      for (let pass = 0; pass < 18; pass++) {
+        let changed = false;
+
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const a = nodes[i];
+            const b = nodes[j];
+
+            const ta = targets[a.dataset.node];
+            const tb = targets[b.dataset.node];
+
+            const ar = a.getBoundingClientRect();
+            const br = b.getBoundingClientRect();
+
+            const pad = 28;
+
+            const aw = ar.width + pad;
+            const ah = ar.height + pad;
+            const bw = br.width + pad;
+            const bh = br.height + pad;
+
+            const dx = tb.x - ta.x;
+            const dy = tb.y - ta.y;
+
+            const ox =
+              (aw + bw) / 2 - Math.abs(dx);
+
+            const oy =
+              (ah + bh) / 2 - Math.abs(dy);
+
+            if (ox > 0 && oy > 0) {
+              changed = true;
+
+              if (ox < oy) {
+                const push = ox / 2 + 2;
+                const sgn = dx >= 0 ? 1 : -1;
+
+                if (a.dataset.node !== 'raya') {
+                  ta.x -= push * sgn;
+                }
+
+                if (b.dataset.node !== 'raya') {
+                  tb.x += push * sgn;
+                }
+              } else {
+                const push = oy / 2 + 2;
+                const sgn = dy >= 0 ? 1 : -1;
+
+                if (a.dataset.node !== 'raya') {
+                  ta.y -= push * sgn;
+                }
+
+                if (b.dataset.node !== 'raya') {
+                  tb.y += push * sgn;
+                }
+              }
+            }
+          }
+        }
+
+        if (!changed) break;
+      }
+
+      const rect = graph.getBoundingClientRect();
+
+      Object.values(targets).forEach(t => {
+        t.x = Math.max(
+          95,
+          Math.min(rect.width - 95, t.x)
+        );
+
+        t.y = Math.max(
+          95,
+          Math.min(rect.height - 115, t.y)
+        );
+      });
+
+      return targets;
+    }
+
+    function seed() {
+      const targets = resolvedTargets();
+
+      nodes.forEach(node => {
+        const t = targets[node.dataset.node];
+
+        states[node.dataset.node] = {
+          x: t.x,
+          y: t.y,
+          vx: 0,
+          vy: 0,
+          baseX: t.x,
+          baseY: t.y
+        };
+
+        node.style.left = `${t.x}px`;
+        node.style.top = `${t.y}px`;
+      });
+
+      drawLines();
+    }
+
+    function refreshBases() {
+      const targets = resolvedTargets();
+
+      nodes.forEach(node => {
+        const t = targets[node.dataset.node];
+        const s = states[node.dataset.node];
+
+        s.baseX = t.x;
+        s.baseY = t.y;
+
+        if (!motionEnabled()) {
+          s.x = t.x;
+          s.y = t.y;
+          s.vx = 0;
+          s.vy = 0;
+
+          node.style.left = `${t.x}px`;
+          node.style.top = `${t.y}px`;
+        }
+      });
+
+      drawLines();
+    }
+
+    graph.addEventListener(
+      'pointermove',
+      e => {
+        if (!motionEnabled()) return;
+
+        const r = graph.getBoundingClientRect();
+
+        pointer.x = e.clientX - r.left;
+        pointer.y = e.clientY - r.top;
+        pointer.inside = true;
+      },
+      { passive: true }
+    );
+
+    graph.addEventListener(
+      'pointerleave',
+      () => pointer.inside = false,
+      { passive: true }
+    );
+
+    function frame(now) {
+      const dt = Math.min(
+        (now - last) / 1000,
+        .028
+      );
+
+      last = now;
+
+      if (motionEnabled()) {
+        nodes.forEach(node => {
+          const s = states[node.dataset.node];
+
+          let tx = s.baseX;
+          let ty = s.baseY;
+
+          if (pointer.inside) {
+            const dx = pointer.x - s.baseX;
+            const dy = pointer.y - s.baseY;
+
+            const dist = Math.hypot(dx, dy);
+            const radius = 440;
+
+            if (dist < radius && dist > 0) {
+              const p = 1 - dist / radius;
+              const e = p * p * (3 - 2 * p);
+
+              const maxPull =
+                node.classList.contains('anchor')
+                  ? 20
+                  : node.classList.contains('quote-node')
+                    ? 22
+                    : node.classList.contains('celestial-star')
+                      ? 25
+                      : 29;
+
+              tx +=
+                (dx / dist) *
+                maxPull *
+                e;
+
+              ty +=
+                (dy / dist) *
+                maxPull *
+                e;
+            }
+          }
+
+          const stiffness = 43;
+          const damping = 8.7;
+
+          s.vx +=
+            (tx - s.x) *
+            stiffness *
+            dt;
+
+          s.vy +=
+            (ty - s.y) *
+            stiffness *
+            dt;
+
+          const decay =
+            Math.exp(-damping * dt);
+
+          s.vx *= decay;
+          s.vy *= decay;
+
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+
+          node.style.left = `${s.x}px`;
+          node.style.top = `${s.y}px`;
+        });
+
+        drawLines();
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    /*
+     * Wait for BOTH typography and the portrait before
+     * calculating geometry and revealing the constellation.
+     */
+    const portrait =
+      graph.querySelector('.anchor-portrait');
+
+    const portraitReady =
+      !portrait || portrait.complete
+        ? Promise.resolve()
+        : new Promise(resolve => {
+            portrait.addEventListener(
+              'load',
+              resolve,
+              { once: true }
+            );
+
+            // Don't leave the whole constellation invisible
+            // forever if the image itself fails to load.
+            portrait.addEventListener(
+              'error',
+              resolve,
+              { once: true }
+            );
+          });
+
+    Promise.all([
+      document.fonts.ready,
+      portraitReady
+    ]).then(() => {
+      seed();
+
+      graph.classList.add('ready');
+
+      /*
+       * The SVG is separate from #graph, so reveal it
+       * separately after its paths have been calculated.
+       */
+      svg.style.transition =
+        'opacity .45s cubic-bezier(.22,.61,.36,1)';
+
+      svg.style.opacity = '1';
+
+      requestAnimationFrame(frame);
+    });
+
+    let resizeTimer;
+
+    addEventListener(
+      'resize',
+      () => {
+        clearTimeout(resizeTimer);
+
+        resizeTimer =
+          setTimeout(
+            refreshBases,
+            100
+          );
+      },
+      { passive: true }
+    );
+
+    finePointer.addEventListener?.(
+      'change',
+      refreshBases
+    );
+  }
+</script>

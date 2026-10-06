@@ -1,0 +1,192 @@
+---
+import InteriorLayout from '../../layouts/InteriorLayout.astro';
+import StarDivider from '../../components/StarDivider.astro';
+import PageWayfinding from '../../components/PageWayfinding.astro';
+import FactStrip from '../../components/FactStrip.astro';
+import ProjectLog from '../../components/ProjectLog.astro';
+
+const progress = [
+  {
+    date: "2026-10-03",
+    text: "Established the initial goals, parameters, and constraints for a local agent."
+  },
+];
+---
+
+<InteriorLayout
+  title="Homegrown Intelligence | Raya Maia"
+  description="An experiment in building a private, locally run AI agent around my own tools, data, and workflows — designed around how I actually work."
+  pageClass="page-local-agent"
+  canonicalPath="/projects/local-agent/"
+>
+  <main>
+    <div class="page-shell">
+      <PageWayfinding position="top" />
+
+      <section class="sky-hero">
+        <div class="sky-hero-copy reveal">
+          <p class="kicker">Local AI Agent</p>
+
+          <h1>Homegrown Intelligence</h1>
+
+          <p class="lede">
+            An experiment in building a private, locally run AI agent around my own
+            tools, data, and workflows — designed around how I actually work.
+          </p>
+        </div>
+      </section>
+
+      <StarDivider />
+
+      <section class="field-section">
+        <div class="field-layout">
+          <aside class="field-index reveal">
+            <strong>01</strong>Parameters
+          </aside>
+
+          <div class="field-content reveal">
+            <h2>What am I trying to build?</h2>
+
+            <p class="lead">Starting parameters for a local personal agent that keeps my data under my control.</p>
+
+            <p>
+              <b>Keep local and cloud models separate.</b> Use cloud models when more advanced reasoning is necessary, but I will act as the bridge deciding what context crosses between them.<br><br>
+              <b>Don’t try to rebuild advanced chatbots.</b> Prioritize useful access, security, tools and integration over raw model power.<br><br>
+              <b>Build for a real personal computer.</b> Keep the project viable on hardware I can realistically own and operate at home.<br><br>
+              <b>Models are components of the system.</b> Keep my data, memory, and core tools separate from the model so models can be replaced without rebuilding the agent.<br><br>
+              <b>Solve real problems.</b> Build capabilities around whatever gets in my way, rather than what's possible simply because the technology exists.<br><br>
+              <b>Automate without outsourcing judgment.</b> Let the agent notice, suggest, and take initiative, but leave meaningful decisions to me. 
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="field-section">
+        <div class="field-layout">
+          <aside class="field-index reveal">
+            <strong>02</strong>Capabilities
+          </aside>
+
+          <div class="field-content reveal">
+            <h2>What should it do?</h2>
+
+            <p class="lead">
+              Capabilities I want to build toward, organized by the role I want them to play.
+            </p>
+
+            <div class="observation-list">
+              <div class="observation">
+                <span class="dot"></span>
+                <div>
+                  <h3>Knowledge</h3>
+                  <p>
+                    Keep track of what I know and help me find it again. Work across Obsidian, local files and memory to retrieve context, connect ideas and maintain a useful knowledge base.
+                  </p>
+                </div>
+              </div>
+
+              <div class="observation">
+                <span class="dot"></span>
+                <div>
+                  <h3>Assistance</h3>
+                  <p>
+                    Help me work with information once I have it. Research, summarize, compare and pull together material from different sources.
+                  </p>
+                </div>
+              </div>
+
+              <div class="observation">
+                <span class="dot"></span>
+                <div>
+                  <h3>Awareness</h3>
+                  <p>
+                    Understand what I'm doing when I choose to give it that context. Use on-demand computer vision and screen context to answer questions and eventually observe workflows.
+                  </p>
+                </div>
+              </div>
+
+              <div class="observation">
+                <span class="dot"></span>
+                <div>
+                  <h3>Automation</h3>
+                  <p>
+                    Handle work that doesn't need my constant involvement. Run scheduled searches, cross-reference email and calendar, send reminders and carry out approved routine actions.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="field-section">
+        <div class="field-layout">
+          <aside class="field-index reveal">
+            <strong>03</strong>Constraints
+          </aside>
+
+          <div class="field-content reveal">
+            <h2>Limitations & proposed workarounds.</h2>
+
+            <p class="lead">
+              Practical challenges and how I might address them.
+            </p>
+
+            <p>
+              <b>Hardware.</b> My local model will have to share limited RAM and VRAM with everything else I use my computer for. I'll prioritize efficient models and tools before upgrading hardware.<br><br>
+              <b>Availability.</b> If my computer is sleeping, my local agent won't be accessible. I'm going to accept that limitation  
+              rather than maintaining a permanent server, and revisit if it becomes inconvenient.<br><br>
+              <b>Expertise.</b> As this experiment extends outside the scope of my formal training, I'll be relying on AI assistance for development. To reduce the risks that introduces, I'll use established 
+              protocols and primary documentation for safety and data security, and seek outside expertise where warranted.<br><br>
+              <b>Maintenance.</b> Since I own the system, I'll have to upkeep it. I intend to keep the architecture simple and modular so that maintaining my local agent doesn't cost 
+              more time than it saves.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="field-section">
+        <div class="field-layout">
+          <aside class="field-index reveal">
+            <strong>04</strong>Security
+          </aside>
+
+          <div class="field-content reveal">
+            <h2>
+              The #1 priority is security.
+            </h2>
+
+            <FactStrip
+              items={[
+                {
+                  label: "Credentials",
+                  title: "Keeping secrets separate.",
+                  text: "Passwords, API keys and other credentials shouldn't be stored somewhere the model can read them. I'll use established methods for authentication and let the model interact with authenticated services through controlled tools."
+                },
+                {
+                  label: "Permissions",
+                  title: "Limiting what it can do.",
+                  text: "I'll start by giving my agent as little access as possible and add permissions as needed. More consequential actions, especially deletion or anything public-facing, will require my approval."
+                },
+                {
+                  label: "Privacy",
+                  title: "What leaves my computer.",
+                  text: "Accessing the internet will sometimes require sending information elsewhere. I'll limit what gets shared to what's actually needed for the task."
+                },
+                {
+                  label: "Trust",
+                  title: "Defaulting to distrust.",
+                  text: "The model will sometimes misunderstand, hallucinate, or follow instructions it shouldn't. Important security rules should be enforced by code rather than left to the model's judgment."
+                }
+              ]}
+            />
+          </div>
+        </div>
+      </section>
+      <ProjectLog entries={progress} />
+
+      <PageWayfinding position="bottom" />
+    </div>
+  </main>
+</InteriorLayout>

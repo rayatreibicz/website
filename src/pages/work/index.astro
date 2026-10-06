@@ -1,0 +1,17 @@
+---
+import PageWayfinding from '../../components/PageWayfinding.astro';
+import InteriorLayout from '../../layouts/InteriorLayout.astro';
+---
+<InteriorLayout title="Work | Raya Maia" description="Writing, coaching, and other public work by Raya Maia." pageClass="page-work" canonicalPath="/work/">
+  <main><div class="page-shell">
+    <PageWayfinding position="top" />
+    <section class="sky-hero compact-landing"><div class="sky-hero-copy reveal"><p class="kicker">In practice</p><h1>Work</h1>
+      <p class="lede">Writing, coaching, and initiatives shaped by the questions I keep following.</p></div></section>
+    <section class="landing-index reveal" aria-label="Work pages">
+      <a href="/work/the-human-question/"><span>The Human Question</span><small>Essays, briefs & field notes</small></a>
+      <a href="/work/coaching/"><span>Academic Coaching</span><small>Support built around the learner</small></a>
+      <a href="/work/chinese-adoption-heritage/"><span>Chinese Adoption &amp; Heritage</span><small>Language, heritage & practical access</small></a>
+    </section>
+    <PageWayfinding position="bottom" />
+  </div></main>
+</InteriorLayout>

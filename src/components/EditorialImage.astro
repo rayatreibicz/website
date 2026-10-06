@@ -1,0 +1,5 @@
+---
+interface Props { src: string; alt: string; caption?: string; position?: 'wide'|'left'|'right'; }
+const { src, alt, caption='', position='wide' } = Astro.props;
+---
+<figure class={`editorial-image editorial-image-${position} reveal`}><div class="editorial-image-frame"><img src={src} alt={alt} loading="lazy" /></div>{caption && <figcaption>{caption}</figcaption>}</figure>

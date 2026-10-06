@@ -1,0 +1,11 @@
+---
+interface Props { title:string; deck?:string; excerpt?:string; href:string; label?:string; }
+const { title, deck='', excerpt='', href, label='Essay' } = Astro.props;
+---
+<article class="essay-preview reveal">
+  <p class="micro-label">{label}</p>
+  <h2>{title}</h2>
+  {deck && <p class="essay-deck">{deck}</p>}
+  {excerpt && <div class="essay-excerpt"><p>{excerpt}</p></div>}
+  <a class="essay-button" href={href} rel="noopener" target="_blank">Continue reading →</a>
+</article>

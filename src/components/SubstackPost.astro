@@ -1,0 +1,35 @@
+---
+import EssayPreview from './EssayPreview.astro';
+interface Props { postUrl: string; fallbackTitle: string; fallbackDeck?: string; }
+const { postUrl, fallbackTitle, fallbackDeck = '' } = Astro.props;
+const feedUrl = 'https://rayamaia.substack.com/feed';
+let post = { title: fallbackTitle, link: postUrl, deck: fallbackDeck, excerpt: '', date: '' };
+const entities: Record<string,string> = {amp:'&',quot:'\"',apos:"'",nbsp:' ',lt:'<',gt:'>'};
+const decodeEntities = (s:string) => s.replace(/&#(x?[0-9a-f]+);|&([a-z]+);/gi, (_,num,name) => {
+  if(num){ const n=num.toLowerCase().startsWith('x') ? parseInt(num.slice(1),16) : parseInt(num,10); return Number.isFinite(n) ? String.fromCodePoint(n) : _; }
+  return entities[name?.toLowerCase()] ?? _;
+});
+const decode = (s:string) => decodeEntities(s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
+const excerptAtSentence = (s:string, max=560) => { if(s.length<=max)return s; const chunk=s.slice(0,max); const stops=[...chunk.matchAll(/[.!?](?=\s|$)/g)]; return stops.length ? chunk.slice(0,(stops.at(-1)?.index ?? max)+1) : chunk.trimEnd()+'…'; };
+const tag = (xml:string,name:string) => { const m=xml.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${name}>`,'i')); return m ? decode(m[1]) : ''; };
+try {
+  const response = await fetch(feedUrl);
+  if(response.ok){
+    const xml = await response.text();
+    const items = xml.match(/<item>[\s\S]*?<\/item>/gi) ?? [];
+    const wanted = items.find(item => tag(item,'link').replace(/\/$/,'') === postUrl.replace(/\/$/,'')) ?? items[0];
+    if(wanted){
+      const description = tag(wanted,'description');
+      const content = tag(wanted,'content:encoded');
+      post = {
+        title: tag(wanted,'title') || fallbackTitle,
+        link: tag(wanted,'link') || postUrl,
+        deck: description || fallbackDeck,
+        excerpt: excerptAtSentence(content || description),
+        date: tag(wanted,'pubDate')
+      };
+    }
+  }
+} catch (_) { /* Offline builds keep the known-good fallback. */ }
+---
+<EssayPreview title={post.title} deck={post.deck} excerpt={post.excerpt} href={post.link} label="Essay · Live from The Human Question" />
