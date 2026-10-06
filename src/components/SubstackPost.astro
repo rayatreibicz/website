@@ -1,7 +1,19 @@
 ---
 import EssayPreview from './EssayPreview.astro';
-interface Props { postUrl: string; fallbackTitle: string; fallbackDeck?: string; }
-const { postUrl, fallbackTitle, fallbackDeck = '' } = Astro.props;
+interface Props {
+  postUrl: string;
+  fallbackTitle: string;
+  fallbackDeck?: string;
+  fallbackExcerpt?: string;
+}
+
+const {
+  postUrl,
+  fallbackTitle,
+  fallbackDeck = '',
+  fallbackExcerpt = ''
+} = Astro.props;
+
 const feedUrl = 'https://rayamaia.substack.com/feed';
 let post = { title: fallbackTitle, link: postUrl, deck: fallbackDeck, excerpt: '', date: '' };
 const entities: Record<string,string> = {amp:'&',quot:'\"',apos:"'",nbsp:' ',lt:'<',gt:'>'};
