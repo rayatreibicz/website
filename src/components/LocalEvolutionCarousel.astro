@@ -1,0 +1,87 @@
+---
+interface Image { src: string; alt: string; label: string; }
+interface Slide { date: string; heading: string; description: string; images: Image[]; }
+interface Props { slides: Slide[]; }
+const { slides } = Astro.props;
+---
+<div class="local-evolution" data-local-evolution>
+  <div class="local-evolution-stage">
+    {slides.map((slide, i) => (
+      <figure class:list={['local-evolution-slide', slide.images.length > 1 && 'local-evolution-pair', i === 0 && 'is-active']} data-evolution-slide aria-hidden={i !== 0 ? 'true' : 'false'} inert={i !== 0}>
+        <div class="local-evolution-images">
+          {slide.images.map(image => (
+            <a class="local-evolution-image" href={image.src} target="_blank" rel="noopener" title={`Open full image: ${image.label}`}>
+              <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+              <span>{image.label} <span aria-hidden="true">↗</span></span>
+            </a>
+          ))}
+        </div>
+        <figcaption class="local-evolution-caption">
+          <span class="local-evolution-date">{slide.date}</span>
+          <div>
+            <h3>{slide.heading}</h3>
+            <p>{slide.description}</p>
+          </div>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+  <div class="local-evolution-navigation">
+    <button type="button" data-evolution-prev aria-label="Previous development snapshot">← Previous</button>
+    <span class="local-evolution-counter" data-evolution-counter aria-live="polite">01 / {String(slides.length).padStart(2, '0')}</span>
+    <button type="button" data-evolution-next aria-label="Next development snapshot">Next →</button>
+  </div>
+  <div class="local-evolution-dots" aria-label="Choose development snapshot">
+    {slides.map((slide, i) => (
+      <button type="button" data-evolution-dot={i} aria-label={`Show ${slide.heading}`} aria-current={i === 0 ? 'true' : undefined} title={slide.heading} />
+    ))}
+  </div>
+</div>
+<script>
+  for (const gallery of document.querySelectorAll<HTMLElement>('[data-local-evolution]')) {
+    const slides = [...gallery.querySelectorAll<HTMLElement>('[data-evolution-slide]')];
+    const dots = [...gallery.querySelectorAll<HTMLButtonElement>('[data-evolution-dot]')];
+    const counter = gallery.querySelector<HTMLElement>('[data-evolution-counter]');
+    const previous = gallery.querySelector<HTMLButtonElement>('[data-evolution-prev]');
+    const next = gallery.querySelector<HTMLButtonElement>('[data-evolution-next]');
+    let index = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let interval: number | undefined;
+    const stop = () => { if (interval !== undefined) window.clearInterval(interval); interval = undefined; };
+    const start = () => {
+      stop();
+      if (reduceMotion || slides.length < 2 || document.hidden || gallery.matches(':hover') || gallery.matches(':focus-within')) return;
+      interval = window.setInterval(() => show(index + 1), 6500);
+    };
+    const show = (value: number) => {
+      if (!slides.length) return;
+      index = (value + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        const active = i === index;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+        slide.inert = !active;
+      });
+      dots.forEach((dot, i) => {
+        if (i === index) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+      if (counter) counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+    };
+    previous?.addEventListener('click', () => { show(index - 1); start(); });
+    next?.addEventListener('click', () => { show(index + 1); start(); });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { show(i); start(); }));
+    gallery.addEventListener('mouseenter', stop);
+    gallery.addEventListener('mouseleave', start);
+    gallery.addEventListener('focusin', stop);
+    gallery.addEventListener('focusout', () => window.setTimeout(start, 0));
+    document.addEventListener('visibilitychange', start);
+    gallery.addEventListener('keydown', (event) => {
+      if (!(event instanceof KeyboardEvent)) return;
+      if (event.target instanceof HTMLAnchorElement) return;
+      if (event.key === 'ArrowLeft') { event.preventDefault(); show(index - 1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); show(index + 1); }
+    });
+    start();
+  }
+</script>
